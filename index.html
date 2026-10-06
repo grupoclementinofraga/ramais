@@ -28,6 +28,15 @@ input,select,button{font:inherit;color:inherit}
 .nm b{display:block}.nm span{color:var(--mu);font-size:14px}
 .rm{font-weight:700;font-size:22px;line-height:1;color:var(--ac);text-align:right}
 .plus{font-size:20px;line-height:1;padding:3px 11px;font-weight:700;color:var(--ac)}
+.pri{background:var(--ac);color:#fff;border-color:var(--ac)}
+.top{display:flex;align-items:center;gap:12px;margin-bottom:10px}.top img{height:46px;width:auto}.top h1{margin:0}
+#login{display:none;min-height:100vh;align-items:center;justify-content:center;padding:20px}
+.lc{width:100%;max-width:380px;background:#fff;border:1px solid var(--bd);border-radius:16px;padding:28px 24px;box-shadow:0 6px 28px #0000001a;border-top:5px solid var(--ac)}
+.lc img{display:block;width:230px;max-width:80%;margin:0 auto 18px}
+.lc h1{font-size:22px;text-align:center;margin:0 0 4px}.lc p{text-align:center;color:var(--mu);margin:0 0 12px;font-size:15px}
+.lc input{width:100%;padding:12px;border:1px solid var(--bd);border-radius:10px;font-size:16px;background:#fff}
+.lc input:focus{outline:3px solid #7b1e3a33;border-color:var(--ac)}
+.lc #lb{width:100%;padding:12px;margin-top:8px;font-size:16px;font-weight:600;border-radius:10px}
 .empty{padding:30px;text-align:center;color:var(--mu)}
 dialog{border:1px solid var(--bd);border-radius:12px;background:var(--card);color:var(--tx);width:min(420px,92vw);padding:18px}
 dialog::backdrop{background:#0008}
@@ -36,14 +45,15 @@ dialog input{width:100%;padding:9px;border:1px solid var(--bd);border-radius:8px
 .btns{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
 .btns .pri{background:var(--ac);color:var(--bg);border-color:var(--ac)}
 :focus-visible{outline:3px solid var(--ac);outline-offset:2px}
-</style></head><body><section id="login" style="display:none;max-width:360px;margin:12vh auto;padding:0 16px">
-<h1>Lista de Ramais</h1><p style="color:var(--mu);margin:0 0 14px">Entre para consultar e editar os ramais.</p>
-<label>Usuário (e-mail)<input id="lu" type="email" autocomplete="username" style="width:100%;padding:11px;border:1px solid var(--bd);border-radius:8px"></label>
-<label>Senha<input id="lp" type="password" autocomplete="current-password" style="width:100%;padding:11px;border:1px solid var(--bd);border-radius:8px"></label>
+</style></head><body><section id="login"><div class="lc">
+<img src="logo-grupo.png" alt="Grupo Clementino Fraga">
+<h1>Lista de Ramais</h1><p>Entre para consultar e editar os ramais.</p>
+<label>Usuário (e-mail)<input id="lu" type="email" autocomplete="username"></label>
+<label>Senha<input id="lp" type="password" autocomplete="current-password"></label>
 <div id="le" style="color:#b00020;min-height:22px;margin-top:8px;font-size:14px"></div>
-<button class="act pri" id="lb" style="width:100%;padding:11px;margin-top:6px">Entrar</button></section>
+<button class="act pri" id="lb">Entrar</button></div></section>
 <main id="app" style="display:none">
-<h1>Lista de Ramais</h1>
+<div class="top"><img src="logo-simbolo.png" alt="Grupo Clementino Fraga"><h1>Lista de Ramais</h1></div>
 <div class="bar">
 <input id="q" type="search" placeholder="Digite um nome, ramal ou setor" autocomplete="off">
 <div class="modes" id="modes"></div></div>
@@ -166,7 +176,7 @@ $('ig').onclick=async()=>{
  if(er){msg.textContent='Erro ao importar: '+er.message;return}
  $('dio').close();await load();
 };
-const show=ok=>{$('login').style.display=ok?'none':'';$('app').style.display=ok?'':'none'};
+const show=ok=>{$('login').style.display=ok?'none':'flex';$('app').style.display=ok?'':'none'};
 let ch=null;
 SB.auth.onAuthStateChange((ev,ses)=>{
  show(!!ses);
