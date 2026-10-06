@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lista de Ramais</title>
+<style>
+:root{--bg:#fff;--card:#fff;--tx:#17211e;--mu:#5d6b66;--ac:#0d5c4d;--ac2:#f3f5f4;--bd:#dde2df;--warn:#8a5a00;--warnbg:#fff1d6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 "Segoe UI",system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:20px 14px 40px}
+h1{font:700 26px/1.1 inherit;margin:0 0 14px}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);padding:8px 0;z-index:2}
+input,select,button{font:inherit;color:inherit}
+#q{width:100%;padding:13px 14px;border:2px solid var(--ac);border-radius:10px;background:var(--card);font-size:18px}
+.modes{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.modes button{padding:6px 14px;border:1px solid var(--bd);border-radius:20px;background:var(--card);cursor:pointer}
+.modes button.on{background:var(--ac);color:var(--bg);border-color:var(--ac)}
+.meta{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;color:var(--mu);font-size:14px;margin:10px 0}
+.meta button,.act{border:1px solid var(--bd);background:var(--card);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:14px}
+.grp{background:#fff;border:1px solid var(--bd);border-radius:10px;margin-bottom:14px;overflow:hidden}
+.gh{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 14px;background:var(--ac2);font-weight:700}
+.tag{font:600 12px/1 "Segoe UI",sans-serif;padding:4px 8px;border-radius:12px;background:var(--card);color:var(--ac)}
+.tag.d{background:var(--warnbg);color:var(--warn)}
+.row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:10px 14px;border-top:1px solid var(--bd)}
+.nm b{display:block}.nm span{color:var(--mu);font-size:14px}
+.rm{font-weight:700;font-size:22px;line-height:1;color:var(--ac);text-align:right}
+.plus{font-size:20px;line-height:1;padding:3px 11px;font-weight:700;color:var(--ac)}
+.empty{padding:30px;text-align:center;color:var(--mu)}
+dialog{border:1px solid var(--bd);border-radius:12px;background:var(--card);color:var(--tx);width:min(420px,92vw);padding:18px}
+dialog::backdrop{background:#0008}
+label{display:block;font-size:14px;color:var(--mu);margin-top:10px}
+dialog input{width:100%;padding:9px;border:1px solid var(--bd);border-radius:8px;background:var(--bg)}
+.btns{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
+.btns .pri{background:var(--ac);color:var(--bg);border-color:var(--ac)}
+:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+</style></head><body><section id="login" style="display:none;max-width:360px;margin:12vh auto;padding:0 16px">
+<h1>Lista de Ramais</h1><p style="color:var(--mu);margin:0 0 14px">Entre para consultar e editar os ramais.</p>
+<label>Usuário (e-mail)<input id="lu" type="email" autocomplete="username" style="width:100%;padding:11px;border:1px solid var(--bd);border-radius:8px"></label>
+<label>Senha<input id="lp" type="password" autocomplete="current-password" style="width:100%;padding:11px;border:1px solid var(--bd);border-radius:8px"></label>
+<div id="le" style="color:#b00020;min-height:22px;margin-top:8px;font-size:14px"></div>
+<button class="act pri" id="lb" style="width:100%;padding:11px;margin-top:6px">Entrar</button></section>
+<main id="app" style="display:none">
+<h1>Lista de Ramais</h1>
+<div class="bar">
+<input id="q" type="search" placeholder="Digite um nome, ramal ou setor" autocomplete="off">
+<div class="modes" id="modes"></div></div>
+<div class="meta"><span id="cnt"></span><span><button id="add">+ Novo ramal</button> <button id="exp">Exportar</button> <button id="imp">Importar</button> <button id="out2">Sair</button></span></div>
+<div id="out"></div>
+<dialog id="dlg"><div id="dt" style="font-weight:700"></div>
+<label>Setor<input id="fs" list="sl"></label><datalist id="sl"></datalist>
+<label>Local / área (opcional)<input id="fl"></label>
+<label>Nome(s)<input id="fn"></label>
+<label>Ramal<input id="fr"></label>
+<div class="btns"><button class="act" id="del">Excluir</button><button class="act" id="cx">Cancelar</button><button class="act pri" id="sv">Salvar</button></div></dialog>
+<dialog id="dio"><div id="it" style="font-weight:700"></div>
+<p id="ih" style="color:var(--mu);font-size:14px;margin:6px 0"></p>
+<textarea id="ta" style="width:100%;height:180px;padding:9px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:12px monospace"></textarea>
+<div id="im" style="font-size:14px;margin-top:6px;min-height:18px"></div>
+<div class="btns"><button class="act" id="ic">Fechar</button><button class="act pri" id="ig"></button></div></dialog>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+const R=[
+["Financeiro / Contabilidade","","Samuel","7891 / 7854"],["Financeiro / Contabilidade","","Victoria/Larissa","7888"],["Financeiro / Contabilidade","","Madalena/Felipe/Joice","8258"],["Financeiro / Contabilidade","","Rayane/Joelma","8270"],
+["SESMT","","Pedro/Edson","7898"],["Departamento Pessoal","","Érika/Maira/Bia","7875"],["DHP","","Carol/Isabelle/Larisse","7899"],
+["Contas Médicas","","Paulo Alexandre/Tatiane","7892"],["Contas Médicas","","Aparecida/Raquel","8250"],["Recurso de Glosa","","Josi / Genilson / Rosi","7863"],
+["Digital","","Ramal geral","300"],["Telefonia","","Ramal geral","200"],
+["Compras/Suprimentos","","Afrânio/Carlos","7853"],["Compras/Suprimentos","","Janderson","8263"],["Marketing","","Amanda/Eduardo","8260"],
+["TI","","Alison","8262"],["TI","","Cleumio","7887"],["TI","","Matheus/Pedro","7855"],["Recepção - ADM","","Kaylane","8252"],
+["Almoxarifado","","Fredson","7876"],["Almoxarifado","","Evaldo/Vinicius","8254"],["Pré Analítico","","Jane","7866"],["Pré Analítico","","Amanda/Thayane/Julia","8266"],
+["Recepção - Central","","Geral","7867"],["Recepção - Central","","Fax","7874"],["Recepção - Central","","Coordenador","7852"],["Recepção - Central","","Consultório","7871"],
+["Gestão de Processos","","Daniel/Júnior/Sombra","7857"],["Qualidade","","Alexandre","7886"],["Qualidade","","Sirlane/Kelma","7896"],
+["Corporativo","","André Thé","7895"],["Corporativo","","Anderson","8259"],["Corporativo","","Juliana","7889"],
+["Área Técnica","Laboratório de Apoio","Paulo Lage/Lucia","8255"],["Área Técnica","Hematologia","Heladya/Regina/Monise/Carla/Alexandre/Raione","6/7881/7"],["Área Técnica","Nefro/Parasito","Ana Almerinda/Roberta/Marta/Tamires","7858"],["Área Técnica","Imunologia","Cleo/Flor/Itala/Francicleudia","7859"],["Área Técnica","Bioquímica","Juliana/Eleusis/Falcão/Alan/Rogerio","7861"],["Área Técnica","Triagem","Gustavo/Cleo/Luyane","7862"],["Área Técnica","Microbiologia","Ricardo/Milton/Luis/Felipe","7869"],["Área Técnica","Esterilização","Paulinho/Lia","7873"],["Área Técnica","Digitação","Fatinha/Edjania/Amanda","7879"],["Área Técnica","Química Analítica","Natalia/Jonas/Lucicarla/Mamadu","7882"],["Área Técnica","Endocrinologia","Alfa/Aline/Marco/Zilson","883/789"],["Área Técnica","Anat. Patologia","Liduina/Pedro/Rosalina/Margarida/Ernesto","8267"],["Área Técnica","Biologia Molecular","Carol/Jean/Alice/Roberto","8276"],["Área Técnica","Direção Médica","Dr. Luís","7870"],["Área Técnica","Administrativo NTO","Jaysa/Alana/Natalya/Cristina","7894"],
+["Serviços Gerais/Manutenção","","Everaldo/Geo","8249"],["Áreas Comuns","Refeitório","","7897"],["Áreas Comuns","Ouvidoria","","8264"],
+["Unidades","Drive Thru","","8271"],["Unidades","Unid. Pediátrica","Cinthia","8225"],["Unidades","Unid. Bezerra de Menezes","Nayara","8201"],["Unidades","Unid. Fátima","Camila da Rocha","8216"],["Unidades","Unid. Oliveira Paiva","Lene","8203"],["Unidades","Unid. Montese","Alyne","8204"],["Unidades","Unid. Jovita Feitosa","Nazaré","8205"],["Unidades","Unid. Alberto Sá","Iago","8206"],["Unidades","Unid. Caucaia","Tassia","8207"],["Unidades","Unid. Conjunto Ceará","Leonardo","8209"],["Unidades","Unid. José Walter","Nyelle","8210"],["Unidades","Unid. Pde. Ant. Tomás","Priscila","8211"],["Unidades","Unid. Maraponga","Gustavo","8212"],["Unidades","Unid. Maracanaú","Flávio","8213"],["Unidades","Unid. Parangaba","Ranna","8214"],["Unidades","Unid. Cidade dos Funcionários","Dalyla","8215"],["Unidades","Unid. Benfica","Débora","8217"],["Unidades","Unid. Eusébio Quintas","Wenderson","8218"],["Unidades","Unid. Eusébio Medical","Bruna","8221"],["Unidades","Unid. Aldeota","Israel","8219"],["Unidades","Unid. Russas 1","Jéssica","8294"],["Unidades","Unid. Russas 2","Cecília","8289"],["Unidades","Unid. Quixadá","Ana Claudia","8290"],["Unidades","Unid. Messejana","Karolyne","8228"]
+].map(a=>({s:a[0],l:a[1],n:a[2],r:a[3]}));
+const SB=supabase.createClient('https://shpmhjoenhksfrzewzwt.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNocG1oam9lbmhrc2ZyemV3end0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyNzgyMzEsImV4cCI6MjEwNjg1NDIzMX0.AdKNBNHFqOFVQI-c5VywFIdMf8r-QC3XdG9cudOHH8c');
+let D=[],seeded=false;
+async function load(){
+ const {data,error}=await SB.from('ramais').select('id,setor,local,nome,ramal').order('id');
+ if(error){$('cnt').textContent='Erro ao carregar: '+error.message;return}
+ if(!data.length&&!seeded){seeded=true;await SB.from('ramais').insert(R.map(x=>({setor:x.s,local:x.l,nome:x.n,ramal:x.r})));return load()}
+ D=data.map(x=>({id:x.id,s:x.setor,l:x.local,n:x.nome,r:x.ramal}));render();
+}
+const $=id=>document.getElementById(id);
+const nz=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let mode='all';const M=[['all','Tudo'],['n','Nome'],['r','Ramal'],['s','Setor']];
+$('modes').innerHTML=M.map(m=>`<button data-m="${m[0]}">${m[1]}</button>`).join('');
+$('modes').onclick=e=>{const m=e.target.dataset.m;if(m){mode=m;render()}};
+$('q').oninput=render;
+function hit(x,q){
+ const f={all:[x.s,x.l,x.n,x.r],n:[x.l,x.n],r:[x.r],s:[x.s]}[mode];
+ return f.some(v=>nz(v).includes(q));
+}
+function render(){
+ document.querySelectorAll('#modes button').forEach(b=>b.classList.toggle('on',b.dataset.m===mode));
+ const q=nz($('q').value.trim());
+ const rows=D.filter(x=>!q||hit(x,q));
+ const g={};rows.forEach(x=>(g[x.s]=g[x.s]||[]).push(x));
+ let h='';
+ for(const s in g){
+  const all=D.filter(x=>x.s===s),u=[...new Set(all.map(x=>x.r))];
+  const tag=all.length>1&&u.length===1?`<span class="tag">Mesmo ramal para todos</span>`:'';
+  h+=`<section class="grp"><div class="gh"><span>${esc(s)}</span><span style="display:flex;gap:8px;align-items:center">${tag}<button class="act plus" data-s="${esc(s)}" title="Adicionar ramal neste setor" aria-label="Adicionar ramal em ${esc(s)}">+</button></span></div>`+g[s].map(x=>{
+   const t=x.l||x.n,sub=x.l?x.n:'';
+   return `<div class="row"><div class="nm"><b>${esc(t)}</b><span>${esc(sub)}</span></div><div class="rm">${esc(x.r)}</div><button class="act" data-i="${D.indexOf(x)}">Editar</button></div>`}).join('')+`</section>`;
+ }
+ $('out').innerHTML=h||'<div class="empty">Nada encontrado. Tente outro termo ou cadastre um novo ramal.</div>';
+ $('cnt').textContent=rows.length+(rows.length===1?' resultado':' resultados');
+}
+let cur=-1,armD=false;
+function open(i,setor){
+ cur=i;armD=false;const x=i<0?{s:setor||'',l:'',n:'',r:''}:D[i];
+ $('dt').textContent=i<0?'Novo ramal':'Editar ramal';
+ $('fs').value=x.s;$('fl').value=x.l;$('fn').value=x.n;$('fr').value=x.r;
+ $('sl').innerHTML=[...new Set(D.map(d=>d.s))].map(s=>`<option value="${esc(s)}">`).join('');
+ $('del').style.display=i<0?'none':'';$('del').textContent='Excluir';
+ $('dlg').showModal();
+}
+$('out').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.s!==undefined)open(-1,b.dataset.s);else if(b.dataset.i!==undefined)open(+b.dataset.i)};
+$('add').onclick=()=>open(-1);
+$('cx').onclick=()=>$('dlg').close();
+$('sv').onclick=async()=>{
+ const x={s:$('fs').value.trim(),l:$('fl').value.trim(),n:$('fn').value.trim(),r:$('fr').value.trim()};
+ if(!x.s||!x.r){$('dt').textContent='Informe pelo menos o setor e o ramal';return}
+ const row={setor:x.s,local:x.l,nome:x.n,ramal:x.r,updated_at:new Date().toISOString()};
+ const {error}=await(cur<0?SB.from('ramais').insert(row):SB.from('ramais').update(row).eq('id',D[cur].id));
+ if(error){$('dt').textContent='Erro ao salvar: '+error.message;return}
+ $('dlg').close();await load();
+};
+$('del').onclick=async()=>{
+ if(!armD){armD=true;$('del').textContent='Clique de novo para excluir';return}
+ const {error}=await SB.from('ramais').delete().eq('id',D[cur].id);
+ if(error){$('dt').textContent='Erro ao excluir: '+error.message;return}
+ $('dlg').close();await load();
+};
+
+let ioMode='';
+function io(m){
+ ioMode=m;armI=false;const ta=$('ta');$('im').textContent='';
+ $('it').textContent=m==='e'?'Exportar lista':'Importar lista';
+ $('ih').textContent=m==='e'?'Copie o código abaixo e guarde (ou envie) para outra pessoa.':'Cole aqui o código exportado de outro aparelho. A lista atual será substituída.';
+ $('ig').textContent=m==='e'?'Copiar código':'Importar';
+ ta.readOnly=m==='e';ta.value=m==='e'?JSON.stringify(D.map(({s,l,n,r})=>({s,l,n,r}))):'';
+ $('dio').showModal();if(m==='e'){ta.focus();ta.select()}
+}
+let armI=false;
+$('exp').onclick=()=>io('e');$('imp').onclick=()=>io('i');$('ic').onclick=()=>$('dio').close();
+$('ig').onclick=async()=>{
+ const ta=$('ta'),msg=$('im');
+ if(ioMode==='e'){
+  ta.select();let ok=false;
+  try{await navigator.clipboard.writeText(ta.value);ok=true}catch(e){try{ok=document.execCommand('copy')}catch(e2){}}
+  msg.textContent=ok?'Código copiado.':'Não foi possível copiar sozinho: o texto está selecionado, use Ctrl+C.';return;
+ }
+ let a;try{a=JSON.parse(ta.value.trim())}catch(e){}
+ if(!Array.isArray(a)||!a.length||!a.every(x=>x&&typeof x.s==='string'&&typeof x.r==='string')){msg.textContent='Código inválido. Cole o código completo exportado pelo app.';return}
+ if(!armI){armI=true;msg.textContent='Isso substitui a lista atual por '+a.length+' ramais. Clique de novo para confirmar.';return}
+ const rows=a.map(x=>({setor:x.s,local:x.l||'',nome:x.n||'',ramal:x.r}));
+ let er=(await SB.from('ramais').delete().gt('id',0)).error;
+ if(!er)er=(await SB.from('ramais').insert(rows)).error;
+ if(er){msg.textContent='Erro ao importar: '+er.message;return}
+ $('dio').close();await load();
+};
+const show=ok=>{$('login').style.display=ok?'none':'';$('app').style.display=ok?'':'none'};
+let ch=null;
+SB.auth.onAuthStateChange((ev,ses)=>{
+ show(!!ses);
+ if(ses&&!ch){setTimeout(load,0);ch=SB.channel('ramais').on('postgres_changes',{event:'*',schema:'public',table:'ramais'},()=>load()).subscribe()}
+ if(!ses&&ch){SB.removeChannel(ch);ch=null;D=[]}
+});
+async function entrar(){
+ $('le').textContent='';
+ const {error}=await SB.auth.signInWithPassword({email:$('lu').value.trim(),password:$('lp').value});
+ if(error)$('le').textContent='Usuário ou senha incorretos.';
+}
+$('lb').onclick=entrar;$('lp').onkeydown=e=>{if(e.key==='Enter')entrar()};
+$('out2').onclick=()=>SB.auth.signOut();
+</script></main></body></html>
