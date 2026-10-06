@@ -31,12 +31,15 @@ input,select,button{font:inherit;color:inherit}
 .pri{background:var(--ac);color:#fff;border-color:var(--ac)}
 .top{display:flex;align-items:center;gap:12px;margin-bottom:10px}.top img{height:46px;width:auto}.top h1{margin:0}
 #login{display:none;min-height:100vh;align-items:center;justify-content:center;padding:20px}
-.lc{width:100%;max-width:380px;background:#fff;border:1px solid var(--bd);border-radius:16px;padding:28px 24px;box-shadow:0 6px 28px #0000001a;border-top:5px solid var(--ac)}
+.lc{width:100%;max-width:380px;background:#fff;border:1px solid var(--bd);border-radius:16px;padding:28px 24px;box-shadow:0 6px 28px #0000001a}
 .lc img{display:block;width:230px;max-width:80%;margin:0 auto 18px}
 .lc h1{font-size:22px;text-align:center;margin:0 0 4px}.lc p{text-align:center;color:var(--mu);margin:0 0 12px;font-size:15px}
 .lc input{width:100%;padding:12px;border:1px solid var(--bd);border-radius:10px;font-size:16px;background:#fff}
 .lc input:focus{outline:3px solid #7b1e3a33;border-color:var(--ac)}
 .lc #lb{width:100%;padding:12px;margin-top:8px;font-size:16px;font-weight:600;border-radius:10px}
+.pw{position:relative}.pw input{padding-right:46px}
+.pw button{position:absolute;right:4px;top:50%;transform:translateY(-50%);border:0;background:none;padding:8px;cursor:pointer;color:var(--mu);display:flex}
+.pw button:hover{color:var(--ac)}
 .empty{padding:30px;text-align:center;color:var(--mu)}
 dialog{border:1px solid var(--bd);border-radius:12px;background:var(--card);color:var(--tx);width:min(420px,92vw);padding:18px}
 dialog::backdrop{background:#0008}
@@ -49,7 +52,8 @@ dialog input{width:100%;padding:9px;border:1px solid var(--bd);border-radius:8px
 <img src="logo-grupo.png" alt="Grupo Clementino Fraga">
 <h1>Lista de Ramais</h1><p>Entre para consultar e editar os ramais.</p>
 <label>Usuário (e-mail)<input id="lu" type="email" autocomplete="username"></label>
-<label>Senha<input id="lp" type="password" autocomplete="current-password"></label>
+<label for="lp">Senha</label>
+<div class="pw"><input id="lp" type="password" autocomplete="current-password"><button type="button" id="eye" aria-label="Mostrar senha" title="Mostrar senha"></button></div>
 <div id="le" style="color:#b00020;min-height:22px;margin-top:8px;font-size:14px"></div>
 <button class="act pri" id="lb">Entrar</button></div></section>
 <main id="app" style="display:none">
@@ -87,7 +91,7 @@ const R=[
 ["Serviços Gerais/Manutenção","","Everaldo/Geo","8249"],["Áreas Comuns","Refeitório","","7897"],["Áreas Comuns","Ouvidoria","","8264"],
 ["Unidades","Drive Thru","","8271"],["Unidades","Unid. Pediátrica","Cinthia","8225"],["Unidades","Unid. Bezerra de Menezes","Nayara","8201"],["Unidades","Unid. Fátima","Camila da Rocha","8216"],["Unidades","Unid. Oliveira Paiva","Lene","8203"],["Unidades","Unid. Montese","Alyne","8204"],["Unidades","Unid. Jovita Feitosa","Nazaré","8205"],["Unidades","Unid. Alberto Sá","Iago","8206"],["Unidades","Unid. Caucaia","Tassia","8207"],["Unidades","Unid. Conjunto Ceará","Leonardo","8209"],["Unidades","Unid. José Walter","Nyelle","8210"],["Unidades","Unid. Pde. Ant. Tomás","Priscila","8211"],["Unidades","Unid. Maraponga","Gustavo","8212"],["Unidades","Unid. Maracanaú","Flávio","8213"],["Unidades","Unid. Parangaba","Ranna","8214"],["Unidades","Unid. Cidade dos Funcionários","Dalyla","8215"],["Unidades","Unid. Benfica","Débora","8217"],["Unidades","Unid. Eusébio Quintas","Wenderson","8218"],["Unidades","Unid. Eusébio Medical","Bruna","8221"],["Unidades","Unid. Aldeota","Israel","8219"],["Unidades","Unid. Russas 1","Jéssica","8294"],["Unidades","Unid. Russas 2","Cecília","8289"],["Unidades","Unid. Quixadá","Ana Claudia","8290"],["Unidades","Unid. Messejana","Karolyne","8228"]
 ].map(a=>({s:a[0],l:a[1],n:a[2],r:a[3]}));
-const SB=supabase.createClient('https://shpmhjoenhksfrzewzwt.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNocG1oam9lbmhrc2ZyemV3end0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyNzgyMzEsImV4cCI6MjEwNjg1NDIzMX0.AdKNBNHFqOFVQI-c5VywFIdMf8r-QC3XdG9cudOHH8c');
+const SB=supabase.createClient('https://shpmhjoenhksfrzewzwt.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNocG1oam9lbmhrc2ZyemV3end0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyNzgyMzEsImV4cCI6MjEwNjg1NDIzMX0.AdKNBNHFqOFVQI-c5VywFIdMf8r-QC3XdG9cudOHH8c',{auth:{persistSession:true,autoRefreshToken:true}});
 let D=[],seeded=false;
 async function load(){
  const {data,error}=await SB.from('ramais').select('id,setor,local,nome,ramal').order('id');
@@ -193,6 +197,10 @@ addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;$('inst').sty
 addEventListener('appinstalled',()=>{$('inst').style.display='none'});
 $('inst').onclick=async()=>{if(dp){dp.prompt();await dp.userChoice;dp=null;$('inst').style.display='none'}};
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+const EYE='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+EYEX='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.9 17.9A10.9 10.9 0 0 1 12 19C5 19 1 12 1 12a18.5 18.5 0 0 1 5.1-5.9M9.9 5.2A10.4 10.4 0 0 1 12 5c7 0 11 7 11 7a18.6 18.6 0 0 1-2.2 3.2M1 1l22 22"/><path d="M14.1 14.1a3 3 0 1 1-4.2-4.2"/></svg>';
+$('eye').innerHTML=EYE;
+$('eye').onclick=()=>{const p=$('lp'),v=p.type==='password';p.type=v?'text':'password';$('eye').innerHTML=v?EYEX:EYE;$('eye').title=$('eye').ariaLabel=v?'Ocultar senha':'Mostrar senha'};
 $('lb').onclick=entrar;$('lp').onkeydown=e=>{if(e.key==='Enter')entrar()};
 $('out2').onclick=()=>SB.auth.signOut();
 </script></main></body></html>
