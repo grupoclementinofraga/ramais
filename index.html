@@ -40,6 +40,7 @@ input,select,button{font:inherit;color:inherit}
 .pw{position:relative}.pw input{padding-right:46px}
 .pw button{position:absolute;right:4px;top:50%;transform:translateY(-50%);border:0;background:none;padding:8px;cursor:pointer;color:var(--mu);display:flex}
 .pw button:hover{color:var(--ac)}
+.ass{text-align:center;color:var(--mu);font-size:13px;margin-top:22px}
 .empty{padding:30px;text-align:center;color:var(--mu)}
 dialog{border:1px solid var(--bd);border-radius:12px;background:var(--card);color:var(--tx);width:min(420px,92vw);padding:18px}
 dialog::backdrop{background:#0008}
@@ -51,11 +52,15 @@ dialog input{width:100%;padding:9px;border:1px solid var(--bd);border-radius:8px
 </style></head><body><section id="login"><div class="lc">
 <img src="logo-grupo.png" alt="Grupo Clementino Fraga">
 <h1>Lista de Ramais</h1><p>Entre para consultar e editar os ramais.</p>
-<label>Usuário (e-mail)<input id="lu" type="email" autocomplete="username"></label>
+<div id="v1"><label>Usuário (e-mail)<input id="lu" type="email" autocomplete="username"></label>
 <label for="lp">Senha</label>
-<div class="pw"><input id="lp" type="password" autocomplete="current-password"><button type="button" id="eye" aria-label="Mostrar senha" title="Mostrar senha"></button></div>
+<div class="pw"><input id="lp" type="password" autocomplete="current-password"><button type="button" id="eye" aria-label="Mostrar senha" title="Mostrar senha"></button></div></div>
+<div id="v2" style="display:none"><label for="ru">E-mail do usuário</label><input id="ru" type="email" autocomplete="username"></div>
+<div id="v3" style="display:none"><label for="n1">Nova senha</label><input id="n1" type="password" autocomplete="new-password"><label for="n2">Repita a nova senha</label><input id="n2" type="password" autocomplete="new-password"></div>
 <div id="le" style="color:#b00020;min-height:22px;margin-top:8px;font-size:14px"></div>
-<button class="act pri" id="lb">Entrar</button></div></section>
+<button class="act pri" id="lb">Entrar</button>
+<div style="text-align:center;margin-top:14px"><a href="#" id="lk" style="color:var(--ac);font-size:14px"></a></div>
+<div class="ass" style="margin-top:20px">Desenvolvido pelo setor de compras</div></div></section>
 <main id="app" style="display:none">
 <div class="top"><img src="logo-simbolo.png" alt="Grupo Clementino Fraga"><h1>Lista de Ramais</h1></div>
 <div class="bar">
@@ -63,6 +68,7 @@ dialog input{width:100%;padding:9px;border:1px solid var(--bd);border-radius:8px
 <div class="modes" id="modes"></div></div>
 <div class="meta"><span id="cnt"></span><span><button id="add">+ Novo ramal</button> <button id="exp">Exportar</button> <button id="imp">Importar</button> <button id="inst" style="display:none">Instalar app</button> <button id="out2">Sair</button></span></div>
 <div id="out"></div>
+<div class="ass">Desenvolvido pelo setor de compras</div>
 <dialog id="dlg"><div id="dt" style="font-weight:700"></div>
 <label>Setor<input id="fs" list="sl"></label><datalist id="sl"></datalist>
 <label>Local / área (opcional)<input id="fl"></label>
@@ -181,12 +187,19 @@ $('ig').onclick=async()=>{
  $('dio').close();await load();
 };
 const show=ok=>{$('login').style.display=ok?'none':'flex';$('app').style.display=ok?'':'none'};
-let ch=null;
-SB.auth.onAuthStateChange((ev,ses)=>{
- show(!!ses);
- if(ses&&!ch){setTimeout(load,0);ch=SB.channel('ramais').on('postgres_changes',{event:'*',schema:'public',table:'ramais'},()=>load()).subscribe()}
- if(!ses&&ch){SB.removeChannel(ch);ch=null;D=[]}
-});
+let ch=null,rec=/type=recovery/.test(location.hash),vw='v1';
+const view=v=>['v1','v2','v3'].forEach(x=>$(x).style.display=x===v?'':'none');
+function sync(ses){
+ const ok=!!ses&&!rec;show(ok);
+ if(ok&&!ch){setTimeout(load,0);ch=SB.channel('ramais').on('postgres_changes',{event:'*',schema:'public',table:'ramais'},()=>load()).subscribe()}
+ if(!ok&&ch){SB.removeChannel(ch);ch=null;D=[]}
+}
+SB.auth.onAuthStateChange((ev,ses)=>{if(ev==='PASSWORD_RECOVERY'){rec=true;go('v3')}sync(ses)});
+function go(v){
+ vw=v;view(v);$('le').textContent='';$('le').style.color='#b00020';
+ $('lb').textContent={v1:'Entrar',v2:'Enviar link de recuperação',v3:'Salvar nova senha'}[v];
+ $('lk').textContent=v==='v1'?'Esqueci minha senha':'Voltar ao login';$('lk').style.display=v==='v3'?'none':'';
+}
 async function entrar(){
  $('le').textContent='';
  const {error}=await SB.auth.signInWithPassword({email:$('lu').value.trim(),password:$('lp').value});
@@ -196,11 +209,32 @@ let dp=null;
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;$('inst').style.display=''});
 addEventListener('appinstalled',()=>{$('inst').style.display='none'});
 $('inst').onclick=async()=>{if(dp){dp.prompt();await dp.userChoice;dp=null;$('inst').style.display='none'}};
+if(matchMedia('(display-mode: standalone)').matches&&screen.availWidth>=900&&window.outerWidth<900){try{const w=Math.min(1100,screen.availWidth),g=Math.min(800,screen.availHeight);window.resizeTo(w,g);window.moveTo(Math.round((screen.availWidth-w)/2),Math.round((screen.availHeight-g)/2))}catch(e){}}
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 const EYE='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>',
 EYEX='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.9 17.9A10.9 10.9 0 0 1 12 19C5 19 1 12 1 12a18.5 18.5 0 0 1 5.1-5.9M9.9 5.2A10.4 10.4 0 0 1 12 5c7 0 11 7 11 7a18.6 18.6 0 0 1-2.2 3.2M1 1l22 22"/><path d="M14.1 14.1a3 3 0 1 1-4.2-4.2"/></svg>';
 $('eye').innerHTML=EYE;
 $('eye').onclick=()=>{const p=$('lp'),v=p.type==='password';p.type=v?'text':'password';$('eye').innerHTML=v?EYEX:EYE;$('eye').title=$('eye').ariaLabel=v?'Ocultar senha':'Mostrar senha'};
-$('lb').onclick=entrar;$('lp').onkeydown=e=>{if(e.key==='Enter')entrar()};
+async function acao(){
+ const le=$('le');le.style.color='#b00020';le.textContent='';
+ if(vw==='v1')return entrar();
+ if(vw==='v2'){
+  const email=$('ru').value.trim();if(!email){le.textContent='Informe o e-mail do usuário.';return}
+  const {error}=await SB.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+  if(error){le.textContent='Não foi possível enviar: '+error.message;return}
+  le.style.color='#1b7f3b';le.textContent='Se o e-mail estiver cadastrado, enviamos o link de recuperação. Confira a caixa de entrada e o spam.';return;
+ }
+ const a=$('n1').value,b=$('n2').value;
+ if(a.length<6){le.textContent='A senha deve ter pelo menos 6 caracteres.';return}
+ if(a!==b){le.textContent='As senhas não conferem.';return}
+ const {error}=await SB.auth.updateUser({password:a});
+ if(error){le.textContent='Não foi possível salvar: '+error.message;return}
+ rec=false;history.replaceState(null,'',location.pathname);go('v1');
+ sync((await SB.auth.getSession()).data.session);
+}
+$('lb').onclick=acao;$('login').onkeydown=e=>{if(e.key==='Enter')acao()};
+$('lk').onclick=e=>{e.preventDefault();const em=$('lu').value;go(vw==='v1'?'v2':'v1');if(vw==='v2')$('ru').value=em};
+go(rec?'v3':'v1');
+if(/error_code/.test(location.hash)){$('le').textContent='Link inválido ou expirado. Peça um novo link de recuperação.';history.replaceState(null,'',location.pathname)}
 $('out2').onclick=()=>SB.auth.signOut();
 </script></main></body></html>
