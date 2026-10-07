@@ -56,6 +56,8 @@ input,select,button{font:inherit;color:inherit}
 }
 .urow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:9px 0;border-top:1px solid var(--bd)}
 .urow select{padding:7px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx)}
+.act.plus{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;padding:0}
+.ico{border:0;background:none;color:var(--ac);padding:4px;cursor:pointer;display:inline-flex;border-radius:6px}.ico:hover{background:var(--ac2)}
 .empty{padding:30px;text-align:center;color:var(--mu)}
 dialog{border:1px solid var(--bd);border-radius:12px;background:var(--card);color:var(--tx);width:min(420px,92vw);padding:18px}
 dialog::backdrop{background:#0008}
@@ -108,6 +110,11 @@ dialog input{width:100%;padding:9px;border:1px solid var(--bd);border-radius:8px
 <div class="btns"><button class="act" id="rpc">Fechar</button><button class="act pri" id="rps">Enviar reporte</button></div></dialog>
 <dialog id="drl" style="width:min(640px,94vw)"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><b>Reportes de ramais</b><label style="margin:0;display:flex;gap:6px;align-items:center;font-size:14px"><input type="checkbox" id="rres" style="width:auto;padding:0"> Mostrar resolvidos</label></div>
 <div id="rls" style="max-height:60vh;overflow:auto;margin-top:10px"></div><div class="btns"><button class="act" id="rlc">Fechar</button></div></dialog>
+<dialog id="drs"><b>Renomear setor</b>
+<label>Novo nome do setor<input id="rno" maxlength="80"></label>
+<p style="color:var(--mu);font-size:13px;margin:6px 0 0">Todos os ramais do setor passam para o novo nome. Se já existir um setor com esse nome, eles serão unidos a ele.</p>
+<div id="rnm" style="min-height:20px;font-size:14px;margin-top:6px"></div>
+<div class="btns"><button class="act" id="rnc">Cancelar</button><button class="act pri" id="rns">Salvar</button></div></dialog>
 <div id="pa"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -137,6 +144,7 @@ async function load(){
  D=data.map(x=>({id:x.id,s:x.setor,l:x.local,n:x.nome,r:x.ramal}));render();
 }
 const $=id=>document.getElementById(id);
+const col=new Intl.Collator("pt-BR",{sensitivity:"base",numeric:true}),ttl=x=>x.n||x.l,srt=a=>[...a].sort((p,q)=>col.compare(p.s,q.s)||col.compare(ttl(p),ttl(q)));
 const nz=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let mode='all';const M=[['all','Tudo'],['n','Nome'],['r','Ramal'],['s','Setor']];
@@ -150,14 +158,14 @@ function hit(x,q){
 function render(){
  document.querySelectorAll('#modes button').forEach(b=>b.classList.toggle('on',b.dataset.m===mode));
  const q=nz($('q').value.trim());
- const rows=D.filter(x=>!q||hit(x,q));
+ const rows=srt(D.filter(x=>!q||hit(x,q)));
  const g={};rows.forEach(x=>(g[x.s]=g[x.s]||[]).push(x));
  let h='';
  for(const s in g){
   const all=D.filter(x=>x.s===s),u=[...new Set(all.map(x=>x.r))];
   const tag=all.length>1&&u.length===1?`<span class="tag">Mesmo ramal para todos</span>`:'';
-  h+=`<section class="grp"><div class="gh"><span>${esc(s)}</span><span style="display:flex;gap:8px;align-items:center">${tag}${ME.edit?`<button class="act plus" data-s="${esc(s)}" title="Adicionar ramal neste setor" aria-label="Adicionar ramal em ${esc(s)}">+</button>`:`<button class="act" data-rs="${esc(s)}" title="Reportar problema ou ramal faltando neste setor">Reportar</button>`}</span></div>`+g[s].map(x=>{
-   const t=x.l||x.n,sub=x.l?x.n:'';
+  h+=`<section class="grp"><div class="gh"><span style="display:flex;align-items:center;gap:4px">${esc(s)}${ME.edit?`<button class="ico" data-rn="${esc(s)}" title="Renomear setor" aria-label="Renomear setor ${esc(s)}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>`:''}</span><span style="display:flex;gap:8px;align-items:center">${tag}${ME.edit?`<button class="act plus" data-s="${esc(s)}" title="Adicionar ramal neste setor" aria-label="Adicionar ramal em ${esc(s)}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>`:`<button class="act" data-rs="${esc(s)}" title="Reportar problema ou ramal faltando neste setor">Reportar</button>`}</span></div>`+g[s].map(x=>{
+   const t=x.n||x.l,sub=x.n?x.l:'';
    return `<div class="row"><div class="nm"><b>${esc(t)}</b><span>${esc(sub)}</span></div><div class="rm">${esc(x.r)}</div>${ME.edit?`<button class="act" data-i="${D.indexOf(x)}">Editar</button>`:`<button class="act" data-ri="${D.indexOf(x)}">Reportar</button>`}</div>`}).join('')+`</section>`;
  }
  $('out').innerHTML=h||'<div class="empty">Nada encontrado. Tente outro termo.</div>';
@@ -172,7 +180,7 @@ function open(i,setor){
  $('del').style.display=i<0?'none':'';$('del').textContent='Excluir';
  $('dlg').showModal();
 }
-$('out').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.s!==undefined)open(-1,b.dataset.s);else if(b.dataset.i!==undefined)open(+b.dataset.i);else if(b.dataset.rs!==undefined)reportar(null,b.dataset.rs);else if(b.dataset.ri!==undefined)reportar(D[+b.dataset.ri])};
+$('out').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.s!==undefined)open(-1,b.dataset.s);else if(b.dataset.i!==undefined)open(+b.dataset.i);else if(b.dataset.rn!==undefined)renomear(b.dataset.rn);else if(b.dataset.rs!==undefined)reportar(null,b.dataset.rs);else if(b.dataset.ri!==undefined)reportar(D[+b.dataset.ri])};
 $('add').onclick=()=>open(-1);
 $('cx').onclick=()=>$('dlg').close();
 $('sv').onclick=async()=>{
@@ -190,7 +198,7 @@ $('del').onclick=async()=>{
  $('dlg').close();await load();
 };
 
-const ord=()=>{const g={};D.forEach(x=>(g[x.s]=g[x.s]||[]).push(x));return g};
+const ord=()=>{const g={};srt(D).forEach(x=>(g[x.s]=g[x.s]||[]).push(x));return g};
 $('exp').onclick=()=>$('dex').showModal();$('xc').onclick=()=>$('dex').close();
 $('xx').onclick=()=>{
  $('dex').close();const g=ord(),rows=[['Setor','Local / área','Nome(s)','Ramal']];
@@ -293,6 +301,18 @@ $('uls').onclick=async e=>{
  else if(d.sg){const r=await fn({acao:'senha',id:d.sg,senha:$('nps').value});if(r.erro){umsg(r.erro);return}sn=null;umsg('Senha alterada.',1);drawUs()}
  else if(d.ue){if(ud!==d.ue){ud=d.ue;sn=null;drawUs();return}ud=null;const r=await fn({acao:'excluir',id:d.ue});if(r.erro){umsg(r.erro);drawUs();return}umsg('Usuário excluído.',1);loadUs()}
 };
+let rn=null;
+function renomear(s){rn=s;$('rno').value=s;$('rnm').textContent='';$('drs').showModal();$('rno').select()}
+$('rnc').onclick=()=>$('drs').close();
+$('rns').onclick=async()=>{
+ const n=$('rno').value.trim(),m=$('rnm');m.style.color='#b00020';
+ if(!n){m.textContent='Informe o nome do setor.';return}
+ if(n===rn){$('drs').close();return}
+ const {error}=await SB.from('ramais').update({setor:n,updated_at:new Date().toISOString()}).eq('setor',rn);
+ if(error){m.textContent='Erro ao salvar: '+error.message;return}
+ $('drs').close();await load();
+};
+$('rno').onkeydown=e=>{if(e.key==='Enter')$('rns').click()};
 const show=ok=>{$('login').style.display=ok?'none':'flex';$('app').style.display=ok?'':'none'};
 let ch=null,rec=/type=recovery/.test(location.hash),vw='v1';
 const view=v=>['v1','v2','v3'].forEach(x=>$(x).style.display=x===v?'':'none');
