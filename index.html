@@ -41,6 +41,21 @@ input,select,button{font:inherit;color:inherit}
 .pw button{position:absolute;right:4px;top:50%;transform:translateY(-50%);border:0;background:none;padding:8px;cursor:pointer;color:var(--mu);display:flex}
 .pw button:hover{color:var(--ac)}
 .ass{text-align:center;color:var(--mu);font-size:13px;margin-top:22px}
+#pa{display:none}
+@media print{
+ body.printing>*:not(#pa){display:none!important}
+ body.printing #pa{display:block}
+ @page{margin:12mm}
+ #pa table{width:100%;border-collapse:collapse;font-size:12px}
+ #pa th,#pa td{border:1px solid #bbb;padding:4px 7px;text-align:left}
+ #pa th{background:#eee}
+ #pa .ps td{background:#7b1e3a;color:#fff;font-weight:700;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ #pa .pr{font-weight:700;white-space:nowrap}
+ #pa tr{break-inside:avoid}
+ #pa .ph{display:flex;align-items:center;gap:16px;margin-bottom:10px}#pa .ph img{height:50px}#pa h2{margin:0}
+}
+.urow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:9px 0;border-top:1px solid var(--bd)}
+.urow select{padding:7px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx)}
 .empty{padding:30px;text-align:center;color:var(--mu)}
 dialog{border:1px solid var(--bd);border-radius:12px;background:var(--card);color:var(--tx);width:min(420px,92vw);padding:18px}
 dialog::backdrop{background:#0008}
@@ -66,7 +81,7 @@ dialog input{width:100%;padding:9px;border:1px solid var(--bd);border-radius:8px
 <div class="bar">
 <input id="q" type="search" placeholder="Digite um nome, ramal ou setor" autocomplete="off">
 <div class="modes" id="modes"></div></div>
-<div class="meta"><span id="cnt"></span><span><button id="add">+ Novo ramal</button> <button id="exp">Exportar</button> <button id="imp">Importar</button> <button id="inst" style="display:none">Instalar app</button> <button id="out2">Sair</button></span></div>
+<div class="meta"><span id="cnt"></span><span><button id="add">+ Novo ramal</button> <button id="exp">Exportar</button> <button id="inst" style="display:none">Instalar app</button> <button id="rpb" style="display:none">Reportes</button> <button id="usb" style="display:none">Usuários e acessos</button> <button id="out2">Sair</button></span></div>
 <div id="out"></div>
 <div class="ass">Desenvolvido pelo setor de compras</div>
 <dialog id="dlg"><div id="dt" style="font-weight:700"></div>
@@ -75,11 +90,26 @@ dialog input{width:100%;padding:9px;border:1px solid var(--bd);border-radius:8px
 <label>Nome(s)<input id="fn"></label>
 <label>Ramal<input id="fr"></label>
 <div class="btns"><button class="act" id="del">Excluir</button><button class="act" id="cx">Cancelar</button><button class="act pri" id="sv">Salvar</button></div></dialog>
-<dialog id="dio"><div id="it" style="font-weight:700"></div>
-<p id="ih" style="color:var(--mu);font-size:14px;margin:6px 0"></p>
-<textarea id="ta" style="width:100%;height:180px;padding:9px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:12px monospace"></textarea>
-<div id="im" style="font-size:14px;margin-top:6px;min-height:18px"></div>
-<div class="btns"><button class="act" id="ic">Fechar</button><button class="act pri" id="ig"></button></div></dialog>
+<dialog id="dex"><div style="font-weight:700">Exportar lista</div>
+<p style="color:var(--mu);font-size:14px;margin:6px 0 14px">Como você quer exportar a lista completa de ramais?</p>
+<div style="display:grid;gap:10px"><button class="act pri" id="xp" style="padding:12px;font-size:16px">Imprimir</button><button class="act" id="xx" style="padding:12px;font-size:16px">Excel (.xlsx)</button></div>
+<div class="btns"><button class="act" id="xc">Cancelar</button></div></dialog>
+<dialog id="dus" style="width:min(640px,94vw)"><b>Usuários e acessos</b>
+<div style="margin-top:10px;border:1px solid var(--bd);border-radius:10px;padding:4px 12px 12px"><div style="font-weight:600;font-size:14px;margin-top:8px">Cadastrar usuário</div>
+<label>E-mail<input id="ue" type="email" autocomplete="off"></label>
+<label>Senha (mínimo 6 caracteres)<input id="us" type="text" autocomplete="off"></label>
+<label>Acesso<select id="up" style="width:100%;padding:9px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx)"><option value="leitor">Somente acesso (consulta e reportes)</option><option value="editor">Edição (pode alterar ramais)</option></select></label>
+<div id="um" style="min-height:20px;font-size:14px;margin:6px 0"></div><button class="act pri" id="uc">Cadastrar</button></div>
+<div style="font-weight:600;font-size:14px;margin:14px 0 4px">Usuários cadastrados</div>
+<div id="uls" style="max-height:36vh;overflow:auto"></div><div class="btns"><button class="act" id="ux">Fechar</button></div></dialog>
+<dialog id="drp"><b>Reportar ao administrador</b><div id="rpi" style="color:var(--mu);font-size:14px;margin:4px 0 6px"></div><div id="rpo"></div>
+<label>Observação<input id="rob" maxlength="300"></label>
+<div id="rpm" style="min-height:20px;font-size:14px;margin-top:8px"></div>
+<div class="btns"><button class="act" id="rpc">Fechar</button><button class="act pri" id="rps">Enviar reporte</button></div></dialog>
+<dialog id="drl" style="width:min(640px,94vw)"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><b>Reportes de ramais</b><label style="margin:0;display:flex;gap:6px;align-items:center;font-size:14px"><input type="checkbox" id="rres" style="width:auto;padding:0"> Mostrar resolvidos</label></div>
+<div id="rls" style="max-height:60vh;overflow:auto;margin-top:10px"></div><div class="btns"><button class="act" id="rlc">Fechar</button></div></dialog>
+<div id="pa"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 const R=[
@@ -98,7 +128,8 @@ const R=[
 ["Unidades","Drive Thru","","8271"],["Unidades","Unid. Pediátrica","Cinthia","8225"],["Unidades","Unid. Bezerra de Menezes","Nayara","8201"],["Unidades","Unid. Fátima","Camila da Rocha","8216"],["Unidades","Unid. Oliveira Paiva","Lene","8203"],["Unidades","Unid. Montese","Alyne","8204"],["Unidades","Unid. Jovita Feitosa","Nazaré","8205"],["Unidades","Unid. Alberto Sá","Iago","8206"],["Unidades","Unid. Caucaia","Tassia","8207"],["Unidades","Unid. Conjunto Ceará","Leonardo","8209"],["Unidades","Unid. José Walter","Nyelle","8210"],["Unidades","Unid. Pde. Ant. Tomás","Priscila","8211"],["Unidades","Unid. Maraponga","Gustavo","8212"],["Unidades","Unid. Maracanaú","Flávio","8213"],["Unidades","Unid. Parangaba","Ranna","8214"],["Unidades","Unid. Cidade dos Funcionários","Dalyla","8215"],["Unidades","Unid. Benfica","Débora","8217"],["Unidades","Unid. Eusébio Quintas","Wenderson","8218"],["Unidades","Unid. Eusébio Medical","Bruna","8221"],["Unidades","Unid. Aldeota","Israel","8219"],["Unidades","Unid. Russas 1","Jéssica","8294"],["Unidades","Unid. Russas 2","Cecília","8289"],["Unidades","Unid. Quixadá","Ana Claudia","8290"],["Unidades","Unid. Messejana","Karolyne","8228"]
 ].map(a=>({s:a[0],l:a[1],n:a[2],r:a[3]}));
 const SB=supabase.createClient('https://shpmhjoenhksfrzewzwt.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNocG1oam9lbmhrc2ZyemV3end0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyNzgyMzEsImV4cCI6MjEwNjg1NDIzMX0.AdKNBNHFqOFVQI-c5VywFIdMf8r-QC3XdG9cudOHH8c',{auth:{persistSession:true,autoRefreshToken:true}});
-let D=[],seeded=false;
+let D=[],seeded=false,REP=[],US=[],ME={email:'',admin:false,edit:false};
+const ADMIN='recepcaoadm@lcf.com.br';
 async function load(){
  const {data,error}=await SB.from('ramais').select('id,setor,local,nome,ramal').order('id');
  if(error){$('cnt').textContent='Erro ao carregar: '+error.message;return}
@@ -125,11 +156,11 @@ function render(){
  for(const s in g){
   const all=D.filter(x=>x.s===s),u=[...new Set(all.map(x=>x.r))];
   const tag=all.length>1&&u.length===1?`<span class="tag">Mesmo ramal para todos</span>`:'';
-  h+=`<section class="grp"><div class="gh"><span>${esc(s)}</span><span style="display:flex;gap:8px;align-items:center">${tag}<button class="act plus" data-s="${esc(s)}" title="Adicionar ramal neste setor" aria-label="Adicionar ramal em ${esc(s)}">+</button></span></div>`+g[s].map(x=>{
+  h+=`<section class="grp"><div class="gh"><span>${esc(s)}</span><span style="display:flex;gap:8px;align-items:center">${tag}${ME.edit?`<button class="act plus" data-s="${esc(s)}" title="Adicionar ramal neste setor" aria-label="Adicionar ramal em ${esc(s)}">+</button>`:`<button class="act" data-rs="${esc(s)}" title="Reportar problema ou ramal faltando neste setor">Reportar</button>`}</span></div>`+g[s].map(x=>{
    const t=x.l||x.n,sub=x.l?x.n:'';
-   return `<div class="row"><div class="nm"><b>${esc(t)}</b><span>${esc(sub)}</span></div><div class="rm">${esc(x.r)}</div><button class="act" data-i="${D.indexOf(x)}">Editar</button></div>`}).join('')+`</section>`;
+   return `<div class="row"><div class="nm"><b>${esc(t)}</b><span>${esc(sub)}</span></div><div class="rm">${esc(x.r)}</div>${ME.edit?`<button class="act" data-i="${D.indexOf(x)}">Editar</button>`:`<button class="act" data-ri="${D.indexOf(x)}">Reportar</button>`}</div>`}).join('')+`</section>`;
  }
- $('out').innerHTML=h||'<div class="empty">Nada encontrado. Tente outro termo ou cadastre um novo ramal.</div>';
+ $('out').innerHTML=h||'<div class="empty">Nada encontrado. Tente outro termo.</div>';
  $('cnt').textContent=rows.length+(rows.length===1?' resultado':' resultados');
 }
 let cur=-1,armD=false;
@@ -141,7 +172,7 @@ function open(i,setor){
  $('del').style.display=i<0?'none':'';$('del').textContent='Excluir';
  $('dlg').showModal();
 }
-$('out').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.s!==undefined)open(-1,b.dataset.s);else if(b.dataset.i!==undefined)open(+b.dataset.i)};
+$('out').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.s!==undefined)open(-1,b.dataset.s);else if(b.dataset.i!==undefined)open(+b.dataset.i);else if(b.dataset.rs!==undefined)reportar(null,b.dataset.rs);else if(b.dataset.ri!==undefined)reportar(D[+b.dataset.ri])};
 $('add').onclick=()=>open(-1);
 $('cx').onclick=()=>$('dlg').close();
 $('sv').onclick=async()=>{
@@ -159,40 +190,116 @@ $('del').onclick=async()=>{
  $('dlg').close();await load();
 };
 
-let ioMode='';
-function io(m){
- ioMode=m;armI=false;const ta=$('ta');$('im').textContent='';
- $('it').textContent=m==='e'?'Exportar lista':'Importar lista';
- $('ih').textContent=m==='e'?'Copie o código abaixo e guarde (ou envie) para outra pessoa.':'Cole aqui o código exportado de outro aparelho. A lista atual será substituída.';
- $('ig').textContent=m==='e'?'Copiar código':'Importar';
- ta.readOnly=m==='e';ta.value=m==='e'?JSON.stringify(D.map(({s,l,n,r})=>({s,l,n,r}))):'';
- $('dio').showModal();if(m==='e'){ta.focus();ta.select()}
+const ord=()=>{const g={};D.forEach(x=>(g[x.s]=g[x.s]||[]).push(x));return g};
+$('exp').onclick=()=>$('dex').showModal();$('xc').onclick=()=>$('dex').close();
+$('xx').onclick=()=>{
+ $('dex').close();const g=ord(),rows=[['Setor','Local / área','Nome(s)','Ramal']];
+ for(const s in g)g[s].forEach(x=>rows.push([x.s,x.l,x.n,x.r]));
+ const nome='ramais-'+new Date().toISOString().slice(0,10);
+ if(window.XLSX){const ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:30},{wch:30},{wch:45},{wch:16}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Ramais');XLSX.writeFile(wb,nome+'.xlsx')}
+ else{const c='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(';')).join('\r\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:'text/csv;charset=utf-8'}));a.download=nome+'.csv';a.click()}
+};
+$('xp').onclick=()=>{
+ $('dex').close();const g=ord();let t='';
+ for(const s in g)t+=`<tr class="ps"><td colspan="3">${esc(s)}</td></tr>`+g[s].map(x=>`<tr><td>${esc(x.l)}</td><td>${esc(x.n)}</td><td class="pr">${esc(x.r)}</td></tr>`).join('');
+ $('pa').innerHTML=`<div class="ph"><img src="logo-grupo.png" alt=""><div><h2>Lista de Ramais</h2><span>Atualizada em ${new Date().toLocaleDateString('pt-BR')}</span></div></div><table><thead><tr><th>Local / área</th><th>Nome(s)</th><th>Ramal</th></tr></thead><tbody>${t}</tbody></table>`;
+ document.body.classList.add('printing');setTimeout(()=>window.print(),150);
+};
+addEventListener('afterprint',()=>{document.body.classList.remove('printing');$('pa').innerHTML=''});
+
+async function ident(ses){
+ const em=(ses.user.email||'').toLowerCase();
+ ME={email:em,admin:em===ADMIN,edit:em===ADMIN};
+ if(!ME.admin){const {data}=await SB.from('perfis').select('papel').eq('id',ses.user.id).maybeSingle();ME.edit=!!data&&data.papel==='editor'}
+ $('add').style.display=ME.edit?'':'none';$('usb').style.display=ME.admin?'':'none';$('rpb').style.display=ME.admin?'':'none';
+ if(ME.admin)loadRep();
 }
-let armI=false;
-$('exp').onclick=()=>io('e');$('imp').onclick=()=>io('i');$('ic').onclick=()=>$('dio').close();
-$('ig').onclick=async()=>{
- const ta=$('ta'),msg=$('im');
- if(ioMode==='e'){
-  ta.select();let ok=false;
-  try{await navigator.clipboard.writeText(ta.value);ok=true}catch(e){try{ok=document.execCommand('copy')}catch(e2){}}
-  msg.textContent=ok?'Código copiado.':'Não foi possível copiar sozinho: o texto está selecionado, use Ctrl+C.';return;
- }
- let a;try{a=JSON.parse(ta.value.trim())}catch(e){}
- if(!Array.isArray(a)||!a.length||!a.every(x=>x&&typeof x.s==='string'&&typeof x.r==='string')){msg.textContent='Código inválido. Cole o código completo exportado pelo app.';return}
- if(!armI){armI=true;msg.textContent='Isso substitui a lista atual por '+a.length+' ramais. Clique de novo para confirmar.';return}
- const rows=a.map(x=>({setor:x.s,local:x.l||'',nome:x.n||'',ramal:x.r}));
- let er=(await SB.from('ramais').delete().gt('id',0)).error;
- if(!er)er=(await SB.from('ramais').insert(rows)).error;
- if(er){msg.textContent='Erro ao importar: '+er.message;return}
- $('dio').close();await load();
+const TP={nao_funciona:'Ramal não está funcionando',nao_existe:'Ramal não existe mais',nome_mudou:'Nome da pessoa mudou',setor_errado:'Setor está errado',novo_ramal:'Falta um ramal neste setor',outro:'Outro problema'};
+let rp=null;
+function reportar(x,setor){
+ rp={x,setor:x?x.s:setor};
+ const ops=x?['nao_funciona','nao_existe','nome_mudou','setor_errado','outro']:['novo_ramal','outro'];
+ $('rpi').textContent=x?`${x.s} · ${x.l||x.n||''} · ramal ${x.r}`:`Setor: ${setor}`;
+ $('rpo').innerHTML=ops.map((k,i)=>`<label style="display:flex;gap:8px;align-items:center;color:var(--tx);font-size:15px;margin-top:8px"><input type="radio" name="rtp" value="${k}" ${i?'':'checked'} style="width:auto;padding:0"> ${TP[k]}</label>`).join('');
+ $('rob').value='';$('rob').placeholder=x?'Detalhe, se quiser (ex.: novo nome)':'Informe o nome e o ramal, se souber';
+ $('rpm').textContent='';$('rps').disabled=false;$('drp').showModal();
+}
+$('rpc').onclick=()=>$('drp').close();
+$('rps').onclick=async()=>{
+ const tipo=document.querySelector('input[name=rtp]:checked').value,obs=$('rob').value.trim(),m=$('rpm');
+ m.style.color='#b00020';
+ if((tipo==='novo_ramal'||tipo==='outro')&&!obs){m.textContent='Descreva o problema ou o ramal no campo de observação.';return}
+ $('rps').disabled=true;const x=rp.x;
+ const {error}=await SB.from('reportes').insert({ramal_id:x?x.id:null,setor:rp.setor,local:x?x.l:'',nome:x?x.n:'',ramal:x?x.r:'',tipo,obs,reportado_por:ME.email});
+ if(error){$('rps').disabled=false;m.textContent='Não foi possível enviar: '+error.message;return}
+ m.style.color='#1b7f3b';m.textContent='Reporte enviado! O administrador será avisado.';setTimeout(()=>$('drp').close(),1400);
+};
+async function loadRep(){
+ const {data,error}=await SB.from('reportes').select('*').order('created_at',{ascending:false});
+ if(error)return;REP=data;const n=REP.filter(x=>x.status==='aberto').length;
+ $('rpb').textContent='Reportes'+(n?` (${n})`:'');if($('drl').open)drawRep();
+}
+function drawRep(){
+ const l=REP.filter(x=>$('rres').checked||x.status==='aberto');
+ $('rls').innerHTML=l.length?l.map(x=>`<div style="border:1px solid var(--bd);border-radius:10px;padding:10px 12px;margin-bottom:10px;${x.status==='resolvido'?'opacity:.6':''}">
+<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>${TP[x.tipo]}</b><span style="color:var(--mu);font-size:13px">${new Date(x.created_at).toLocaleString('pt-BR')}</span></div>
+<div style="font-size:14px;margin-top:4px">${esc(x.setor)}${x.local||x.nome?' · '+esc(x.local||x.nome):''}${x.ramal?' · ramal <b>'+esc(x.ramal)+'</b>':''}</div>
+${x.obs?`<div style="font-size:14px;margin-top:4px">“${esc(x.obs)}”</div>`:''}
+<div style="color:var(--mu);font-size:13px;margin-top:4px">Reportado por ${esc(x.reportado_por)}</div>
+<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">${x.ramal_id&&D.some(d=>d.id===x.ramal_id)?`<button class="act" data-ver="${x.id}">Abrir ramal</button>`:''}<button class="act" data-res="${x.id}">${x.status==='aberto'?'Marcar como resolvido':'Reabrir'}</button><button class="act" data-rdel="${x.id}">${rdel===x.id?'Confirmar exclusão':'Excluir'}</button></div></div>`).join(''):'<div class="empty">Nenhum reporte.</div>';
+}
+let rdel=null;
+$('rpb').onclick=async()=>{rdel=null;await loadRep();drawRep();$('drl').showModal()};
+$('rlc').onclick=()=>$('drl').close();$('rres').onchange=drawRep;
+$('rls').onclick=async e=>{
+ const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+ if(d.ver){const x=REP.find(v=>v.id==d.ver),i=D.findIndex(v=>v.id===x.ramal_id);$('drl').close();if(i>=0)open(i)}
+ else if(d.res){const x=REP.find(v=>v.id==d.res);await SB.from('reportes').update({status:x.status==='aberto'?'resolvido':'aberto'}).eq('id',x.id);loadRep()}
+ else if(d.rdel){if(rdel!=d.rdel){rdel=+d.rdel;drawRep();return}rdel=null;await SB.from('reportes').delete().eq('id',+d.rdel);loadRep()}
+};
+let sn=null,ud=null;
+async function fn(body){
+ const {data,error}=await SB.functions.invoke('usuarios',{body});
+ if(error){let m=error.message;try{m=(await error.context.json()).erro||m}catch(e){}return {erro:m}}
+ return data&&data.erro?{erro:data.erro}:{ok:true};
+}
+async function loadUs(){
+ const {data,error}=await SB.from('perfis').select('id,email,papel').order('created_at');
+ if(error){$('uls').textContent='Erro: '+error.message;return}
+ US=data;drawUs();
+}
+function drawUs(){
+ $('uls').innerHTML=`<div class="urow"><div><b style="word-break:break-all">${ADMIN}</b><br><span style="color:var(--mu);font-size:13px">Administrador · permissão total</span></div></div>`+US.map(u=>`<div class="urow"><div style="flex:1;min-width:160px"><b style="word-break:break-all">${esc(u.email)}</b></div>
+<select data-pp="${u.id}"><option value="leitor"${u.papel==='leitor'?' selected':''}>Somente acesso</option><option value="editor"${u.papel==='editor'?' selected':''}>Edição</option></select>
+<button class="act" data-sn="${u.id}">Nova senha</button><button class="act" data-ue="${u.id}">${ud===u.id?'Confirmar exclusão':'Excluir'}</button>
+${sn===u.id?`<div style="width:100%;display:flex;gap:6px"><input id="nps" placeholder="Nova senha (mín. 6)" style="flex:1;padding:8px;border:1px solid var(--bd);border-radius:8px"><button class="act pri" data-sg="${u.id}">Salvar senha</button></div>`:''}</div>`).join('');
+}
+function umsg(t,ok){const m=$('um');m.style.color=ok?'#1b7f3b':'#b00020';m.textContent=t}
+$('usb').onclick=()=>{umsg('');sn=ud=null;$('dus').showModal();loadUs()};
+$('ux').onclick=()=>$('dus').close();
+$('uc').onclick=async()=>{
+ umsg('');const r=await fn({acao:'criar',email:$('ue').value,senha:$('us').value,papel:$('up').value});
+ if(r.erro){umsg(r.erro);return}
+ umsg('Usuário cadastrado.',1);$('ue').value=$('us').value='';loadUs();
+};
+$('uls').onchange=async e=>{
+ const id=e.target.dataset.pp;if(!id)return;
+ const {error}=await SB.from('perfis').update({papel:e.target.value}).eq('id',id);
+ umsg(error?'Erro: '+error.message:'Acesso atualizado.',!error);loadUs();
+};
+$('uls').onclick=async e=>{
+ const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+ if(d.sn){sn=sn===d.sn?null:d.sn;ud=null;drawUs()}
+ else if(d.sg){const r=await fn({acao:'senha',id:d.sg,senha:$('nps').value});if(r.erro){umsg(r.erro);return}sn=null;umsg('Senha alterada.',1);drawUs()}
+ else if(d.ue){if(ud!==d.ue){ud=d.ue;sn=null;drawUs();return}ud=null;const r=await fn({acao:'excluir',id:d.ue});if(r.erro){umsg(r.erro);drawUs();return}umsg('Usuário excluído.',1);loadUs()}
 };
 const show=ok=>{$('login').style.display=ok?'none':'flex';$('app').style.display=ok?'':'none'};
 let ch=null,rec=/type=recovery/.test(location.hash),vw='v1';
 const view=v=>['v1','v2','v3'].forEach(x=>$(x).style.display=x===v?'':'none');
 function sync(ses){
  const ok=!!ses&&!rec;show(ok);
- if(ok&&!ch){setTimeout(load,0);ch=SB.channel('ramais').on('postgres_changes',{event:'*',schema:'public',table:'ramais'},()=>load()).subscribe()}
- if(!ok&&ch){SB.removeChannel(ch);ch=null;D=[]}
+ if(ok&&!ch){setTimeout(async()=>{await ident(ses);await load()},0);ch=SB.channel('ramais').on('postgres_changes',{event:'*',schema:'public',table:'ramais'},()=>load()).on('postgres_changes',{event:'*',schema:'public',table:'reportes'},()=>{if(ME.admin)loadRep()}).subscribe()}
+ if(!ok&&ch){SB.removeChannel(ch);ch=null;D=[];ME={email:'',admin:false,edit:false}}
 }
 SB.auth.onAuthStateChange((ev,ses)=>{if(ev==='PASSWORD_RECOVERY'){rec=true;go('v3')}sync(ses)});
 function go(v){
