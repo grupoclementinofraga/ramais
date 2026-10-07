@@ -75,7 +75,12 @@ input,select,button{font:inherit;color:inherit}
 #out{column-width:400px;column-gap:14px}
 .grp{break-inside:avoid;-webkit-column-break-inside:avoid;page-break-inside:avoid}
 .nm{min-width:0;overflow-wrap:anywhere}
-#out .empty{column-span:all}
+#out .gh{background:var(--ac);color:#fff}
+.gh .ico{color:rgba(255,255,255,.72)}
+.gh .ico:hover,.gh .ico:focus-visible{color:#fff;background:rgba(255,255,255,.2)}
+.gh .act.plus{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.45);color:#fff}
+.gh .act.plus:hover{background:rgba(255,255,255,.28)}
+.empty{column-span:all}
 .empty{padding:30px;text-align:center;color:var(--mu)}
 dialog{border:1px solid var(--bd);border-radius:12px;background:var(--card);color:var(--tx);width:min(420px,92vw);padding:18px}
 dialog::backdrop{background:#0008}
