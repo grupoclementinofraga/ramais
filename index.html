@@ -128,7 +128,7 @@ dialog input{width:100%;padding:9px;border:1px solid var(--bd);border-radius:8px
 <p style="color:var(--mu);font-size:13px;margin:6px 0 0">Todos os ramais do setor passam para o novo nome. Se já existir um setor com esse nome, eles serão unidos a ele.</p>
 <div id="rnm" style="min-height:20px;font-size:14px;margin-top:6px"></div>
 <div class="btns"><button class="act" id="rnc">Cancelar</button><button class="act pri" id="rns">Salvar</button></div></dialog>
-<div id="pa"></div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
@@ -377,4 +377,6 @@ $('lk').onclick=e=>{e.preventDefault();const em=$('lu').value;go(vw==='v1'?'v2':
 go(rec?'v3':'v1');
 if(/error_code/.test(location.hash)){$('le').textContent='Link inválido ou expirado. Peça um novo link de recuperação.';history.replaceState(null,'',location.pathname)}
 $('out2').onclick=()=>SB.auth.signOut();
-</script></main></body></html>
+</script></main>
+<div id="pa"></div>
+</body></html>
