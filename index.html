@@ -10,7 +10,8 @@
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 "Segoe UI",system-ui,sans-serif}
-main{max-width:860px;margin:0 auto;padding:20px 14px 40px}
+main{max-width:1500px;margin:0 auto;padding:20px 14px 40px}
+@media(min-width:961px){main{padding-right:72px}}
 h1{font:700 26px/1.1 inherit;margin:0 0 14px}
 .bar{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);padding:8px 0;z-index:2}
 input,select,button{font:inherit;color:inherit}
@@ -71,6 +72,15 @@ input,select,button{font:inherit;color:inherit}
 @media(hover:none){.meta .tb span{max-width:170px;margin-left:7px}}
 .tbs{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .bdg{position:absolute;top:-7px;right:-5px;min-width:18px;height:18px;border-radius:9px;background:var(--ac);color:#fff;font:700 11px/18px "Segoe UI",sans-serif;text-align:center;padding:0 4px}
+#out{column-width:400px;column-gap:14px}
+.grp{break-inside:avoid;-webkit-column-break-inside:avoid;page-break-inside:avoid}
+.nm{min-width:0;overflow-wrap:anywhere}
+#out .gh{background:var(--ac);color:#fff}
+.gh .ico{color:rgba(255,255,255,.72)}
+.gh .ico:hover,.gh .ico:focus-visible{color:#fff;background:rgba(255,255,255,.2)}
+.gh .act.plus{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.45);color:#fff}
+.gh .act.plus:hover{background:rgba(255,255,255,.28)}
+.empty{column-span:all}
 .empty{padding:30px;text-align:center;color:var(--mu)}
 dialog{border:1px solid var(--bd);border-radius:12px;background:var(--card);color:var(--tx);width:min(420px,92vw);padding:18px}
 dialog::backdrop{background:#0008}
@@ -118,6 +128,8 @@ dialog input{width:100%;padding:9px;border:1px solid var(--bd);border-radius:8px
 <div style="font-weight:600;font-size:14px;margin:14px 0 4px">Usuários cadastrados</div>
 <div id="uls" style="max-height:36vh;overflow:auto"></div><div class="btns"><button class="act" id="ux">Fechar</button></div></dialog>
 <dialog id="drp"><b>Reportar ao administrador</b><div id="rpi" style="color:var(--mu);font-size:14px;margin:4px 0 6px"></div><div id="rpo"></div>
+<label id="rsnl" style="display:none">Informe o nome correto<input id="rsn" maxlength="120"></label>
+<label id="rsrl" style="display:none">Informe o ramal correto<input id="rsr" maxlength="40"></label>
 <label>Observação<input id="rob" maxlength="300"></label>
 <div id="rpm" style="min-height:20px;font-size:14px;margin-top:8px"></div>
 <div class="btns"><button class="act" id="rpc">Fechar</button><button class="act pri" id="rps">Enviar reporte</button></div></dialog>
@@ -235,23 +247,25 @@ async function ident(ses){
  $('add').style.display=ME.edit?'':'none';$('usb').style.display=ME.admin?'':'none';$('rpb').style.display=ME.admin?'':'none';
  if(ME.admin)loadRep();
 }
-const TP={nao_funciona:'Ramal não está funcionando',nao_existe:'Ramal não existe mais',nome_mudou:'Nome da pessoa mudou',setor_errado:'Setor está errado',novo_ramal:'Falta um ramal neste setor',outro:'Outro problema'};
+const TP={nao_funciona:'Ramal não está funcionando',nao_existe:'Ramal não existe mais',nome_mudou:'Nome da pessoa mudou',ramal_errado:'Número do ramal está errado',setor_errado:'Setor está errado',novo_ramal:'Falta um ramal neste setor',outro:'Outro problema'};
 let rp=null;
 function reportar(x,setor){
  rp={x,setor:x?x.s:setor};
- const ops=x?['nao_funciona','nao_existe','nome_mudou','setor_errado','outro']:['novo_ramal','outro'];
+ const ops=x?['nao_funciona','nao_existe','nome_mudou','ramal_errado','setor_errado','outro']:['novo_ramal','outro'];
  $('rpi').textContent=x?`${x.s} · ${x.l||x.n||''} · ramal ${x.r}`:`Setor: ${setor}`;
  $('rpo').innerHTML=ops.map((k,i)=>`<label style="display:flex;gap:8px;align-items:center;color:var(--tx);font-size:15px;margin-top:8px"><input type="radio" name="rtp" value="${k}" ${i?'':'checked'} style="width:auto;padding:0"> ${TP[k]}</label>`).join('');
- $('rob').value='';$('rob').placeholder=x?'Detalhe, se quiser (ex.: novo nome)':'Informe o nome e o ramal, se souber';
+ $('rsn').value=$('rsr').value='';campos();$('rob').value='';$('rob').placeholder=x?'Detalhe, se quiser (ex.: novo nome)':'Informe o nome e o ramal, se souber';
  $('rpm').textContent='';$('rps').disabled=false;$('drp').showModal();
 }
+function campos(){const t=(document.querySelector('input[name=rtp]:checked')||{}).value;$('rsnl').style.display=t==='nome_mudou'?'':'none';$('rsrl').style.display=t==='ramal_errado'?'':'none'}
+$('rpo').onchange=campos;
 $('rpc').onclick=()=>$('drp').close();
 $('rps').onclick=async()=>{
  const tipo=document.querySelector('input[name=rtp]:checked').value,obs=$('rob').value.trim(),m=$('rpm');
  m.style.color='#b00020';
  if((tipo==='novo_ramal'||tipo==='outro')&&!obs){m.textContent='Descreva o problema ou o ramal no campo de observação.';return}
  $('rps').disabled=true;const x=rp.x;
- const {error}=await SB.from('reportes').insert({ramal_id:x?x.id:null,setor:rp.setor,local:x?x.l:'',nome:x?x.n:'',ramal:x?x.r:'',tipo,obs,reportado_por:ME.email});
+ const {error}=await SB.from('reportes').insert({ramal_id:x?x.id:null,setor:rp.setor,local:x?x.l:'',nome:x?x.n:'',ramal:x?x.r:'',tipo,obs,sugestao_nome:tipo==='nome_mudou'?$('rsn').value.trim():'',sugestao_ramal:tipo==='ramal_errado'?$('rsr').value.trim():'',reportado_por:ME.email});
  if(error){$('rps').disabled=false;m.textContent='Não foi possível enviar: '+error.message;return}
  m.style.color='#1b7f3b';m.textContent='Reporte enviado! O administrador será avisado.';setTimeout(()=>$('drp').close(),1400);
 };
@@ -265,9 +279,9 @@ function drawRep(){
  $('rls').innerHTML=l.length?l.map(x=>`<div style="border:1px solid var(--bd);border-radius:10px;padding:10px 12px;margin-bottom:10px;${x.status==='resolvido'?'opacity:.6':''}">
 <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>${TP[x.tipo]}</b><span style="color:var(--mu);font-size:13px">${new Date(x.created_at).toLocaleString('pt-BR')}</span></div>
 <div style="font-size:14px;margin-top:4px">${esc(x.setor)}${x.local||x.nome?' · '+esc(x.local||x.nome):''}${x.ramal?' · ramal <b>'+esc(x.ramal)+'</b>':''}</div>
-${x.obs?`<div style="font-size:14px;margin-top:4px">“${esc(x.obs)}”</div>`:''}
+${x.sugestao_nome?`<div style="font-size:14px;margin-top:4px">Nome sugerido: <b>${esc(x.sugestao_nome)}</b></div>`:''}${x.sugestao_ramal?`<div style="font-size:14px;margin-top:4px">Ramal sugerido: <b>${esc(x.sugestao_ramal)}</b></div>`:''}${x.obs?`<div style="font-size:14px;margin-top:4px">“${esc(x.obs)}”</div>`:''}
 <div style="color:var(--mu);font-size:13px;margin-top:4px">Reportado por ${esc(x.reportado_por)}</div>
-<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">${x.ramal_id&&D.some(d=>d.id===x.ramal_id)?`<button class="act" data-ver="${x.id}">Abrir ramal</button>`:''}<button class="act" data-res="${x.id}">${x.status==='aberto'?'Marcar como resolvido':'Reabrir'}</button><button class="act" data-rdel="${x.id}">${rdel===x.id?'Confirmar exclusão':'Excluir'}</button></div></div>`).join(''):'<div class="empty">Nenhum reporte.</div>';
+<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">${x.ramal_id&&D.some(d=>d.id===x.ramal_id)?`${x.status==='aberto'&&(x.sugestao_nome||x.sugestao_ramal)?`<button class="act pri" data-apl="${x.id}">Aplicar sugestão</button>`:''}<button class="act" data-ver="${x.id}">Abrir ramal</button>`:''}<button class="act" data-res="${x.id}">${x.status==='aberto'?'Marcar como resolvido':'Reabrir'}</button><button class="act" data-rdel="${x.id}">${rdel===x.id?'Confirmar exclusão':'Excluir'}</button></div></div>`).join(''):'<div class="empty">Nenhum reporte.</div>';
 }
 let rdel=null;
 $('rpb').onclick=async()=>{rdel=null;await loadRep();drawRep();$('drl').showModal()};
@@ -275,6 +289,7 @@ $('rlc').onclick=()=>$('drl').close();$('rres').onchange=drawRep;
 $('rls').onclick=async e=>{
  const b=e.target.closest('button');if(!b)return;const d=b.dataset;
  if(d.ver){const x=REP.find(v=>v.id==d.ver),i=D.findIndex(v=>v.id===x.ramal_id);$('drl').close();if(i>=0)open(i)}
+ else if(d.apl){const x=REP.find(v=>v.id==d.apl),u={updated_at:new Date().toISOString()};if(x.sugestao_nome)u.nome=x.sugestao_nome;if(x.sugestao_ramal)u.ramal=x.sugestao_ramal;await SB.from('ramais').update(u).eq('id',x.ramal_id);await SB.from('reportes').update({status:'resolvido'}).eq('id',x.id);await load();loadRep()}
  else if(d.res){const x=REP.find(v=>v.id==d.res);await SB.from('reportes').update({status:x.status==='aberto'?'resolvido':'aberto'}).eq('id',x.id);loadRep()}
  else if(d.rdel){if(rdel!=d.rdel){rdel=+d.rdel;drawRep();return}rdel=null;await SB.from('reportes').delete().eq('id',+d.rdel);loadRep()}
 };
